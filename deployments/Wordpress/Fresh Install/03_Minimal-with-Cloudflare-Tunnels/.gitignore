@@ -1,0 +1,5 @@
+#### Localized Configurations
+## NGINX
+confs/nginx/conf.d/*.conf
+## SSL Files
+confs/ssl/*

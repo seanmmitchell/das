@@ -1,0 +1,40 @@
+version: "3" 
+
+services:
+  mysql:
+    container_name: wp-fi-03--mysql
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${COMPOSE_MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: wp
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: ${COMPOSE_MYSQL_WORDPRESS_PASSWORD}
+    volumes:
+      - "mysql:/var/lib/mysql/"
+  wordpress:
+    depends_on:
+      - mysql
+    container_name: wp-fi-03--wordpress
+    image: wordpress:latest
+    restart: unless-stopped
+    environment:
+      WORDPRESS_DB_HOST: mysql:3306
+      WORDPRESS_DB_NAME: wp
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: ${COMPOSE_MYSQL_WORDPRESS_PASSWORD}
+    volumes:
+      - "../confs/wordpress/upload.ini:/usr/local/etc/php/conf.d/uploads.ini:ro"
+      - "wordpress:/var/www/html"
+  cloudflared:
+    depends_on:
+      - wordpress
+    container_name: wp-fi-03--cloudflared
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    command: tunnel run
+    environment:
+      - TUNNEL_TOKEN=${COMPOSE_TUNNEL_TOKEN}
+volumes:
+  mysql: {}
+  wordpress: {}

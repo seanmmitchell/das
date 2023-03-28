@@ -1,0 +1,23 @@
+#### Refer to README for guidance on updating this configuration. Follow along with the file to configure.
+
+server {
+    listen       8443 ssl default_server;
+    ## Replace "_" with the domain you will use. Optionally you can "_" can be used to null out this value (allow any domain). 
+    server_name  _;
+
+    ## Ensure you follow the README to deploy the correct SSL files.
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_certificate /etc/ssl/server.crt;
+    ssl_certificate_key /etc/ssl/server.key;
+
+    client_max_body_size 200m;
+
+    location / {
+		proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-Host $host;
+		proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $remote_addr;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_pass http://wordpress;
+    }
+}

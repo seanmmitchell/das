@@ -1,0 +1,33 @@
+version: "3" 
+
+services:
+  mysql:
+    container_name: wp-fi-01--mysql
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${COMPOSE_MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: wp
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: ${COMPOSE_MYSQL_WORDPRESS_PASSWORD}
+    volumes:
+      - "mysql:/var/lib/mysql/"
+  wordpress:
+    depends_on:
+      - mysql
+    container_name:  wp-fi-01--wordpress
+    image: wordpress:latest
+    restart: unless-stopped
+    environment:
+      WORDPRESS_DB_HOST: mysql:3306
+      WORDPRESS_DB_NAME: wp
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: ${COMPOSE_MYSQL_WORDPRESS_PASSWORD}
+    ports:
+      - "8080:80"
+    volumes:
+      - "../confs/wordpress/upload.ini:/usr/local/etc/php/conf.d/uploads.ini:ro"
+      - "wordpress:/var/www/html"
+volumes:
+  mysql: {}
+  wordpress: {}

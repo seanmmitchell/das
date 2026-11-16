@@ -13,6 +13,23 @@ Each subfolder in this directory has a prefix XXXX_FOLDER-NAME. The prefixs mean
 - Acct_
   - Any terraform script targeting an account or including an account level target.
 
+# Local Validation
+
+CI uses Terraform 1.13.5 with the committed provider lock files. From each `TF_`
+or `Zone_` directory, run:
+
+```sh
+terraform fmt -check -recursive
+terraform init -backend=false -input=false -lockfile=readonly
+terraform validate
+```
+
+From either `Zone_` directory, also run `terraform test`
+to check Free, Pro, Pro Plus, Business, and Enterprise plan detection. These tests
+use a mocked provider and plan-only runs, so they need no credentials and do not
+create or modify Cloudflare resources. They do not validate live API behavior or
+plan entitlements for individual Cloudflare features.
+
 # Useful Links
 ## Cloudflare Terraform Dev Docs:
 >https://developers.cloudflare.com/terraform/

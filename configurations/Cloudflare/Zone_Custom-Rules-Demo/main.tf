@@ -9,7 +9,7 @@ terraform {
 
 //// Cloudflare Interface
 provider "cloudflare" {
-  email = var.cloudflare_user_email
+  email   = var.cloudflare_user_email
   api_key = var.cloudflare_global_api_token
 }
 
@@ -24,7 +24,7 @@ resource "cloudflare_ruleset" "wordpress-cache-settings" {
     action      = "set_cache_settings"
     description = "Caching for \"/wp-content/\""
     enabled     = true
-    expression  = "(http.request.uri.path eq \"/wp-content/*\")"
+    expression  = "starts_with(http.request.uri.path, \"/wp-content/\")"
     action_parameters {
       browser_ttl {
         default = 259200

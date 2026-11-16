@@ -1,8 +1,7 @@
-version: "3" 
+name: das-wordpress-nginx
 
 services:
   mysql:
-    container_name: wp-fi-02--mysql
     image: mysql:8.0
     restart: unless-stopped
     environment:
@@ -15,7 +14,6 @@ services:
   wordpress:
     depends_on:
       - mysql
-    container_name: wp-fi-02--wordpress
     image: wordpress:latest
     restart: unless-stopped
     environment:
@@ -29,7 +27,6 @@ services:
   nginx:
     depends_on:
       - wordpress
-    container_name: wp-fi-02--nginx
     image: nginx:latest
     restart: unless-stopped
     ports:

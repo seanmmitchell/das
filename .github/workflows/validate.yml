@@ -1,0 +1,56 @@
+name: Validate templates
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  compose:
+    name: Compose configuration and isolation
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - name: Validate all Compose templates with example values
+        run: python3 tools/check_compose.py
+
+  terraform:
+    name: Terraform (${{ matrix.directory }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        directory:
+          - TF_Cloudflare-Importer
+          - Zone_Custom-Rules-Demo
+          - Zone_Lab-Baseline
+    defaults:
+      run:
+        working-directory: configurations/Cloudflare/${{ matrix.directory }}
+    env:
+      TF_IN_AUTOMATION: "true"
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3
+        with:
+          terraform_version: 1.13.5
+          terraform_wrapper: false
+      - name: Check formatting
+        run: terraform fmt -check -recursive
+      - name: Initialize with locked providers and no backend
+        run: terraform init -backend=false -input=false -lockfile=readonly
+      - name: Validate configuration without Cloudflare credentials
+        run: terraform validate -no-color
+      - name: Test plan detection with a mocked Cloudflare provider
+        if: matrix.directory != 'TF_Cloudflare-Importer'
+        run: terraform test -no-color

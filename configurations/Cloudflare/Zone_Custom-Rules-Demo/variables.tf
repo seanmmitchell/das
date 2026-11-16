@@ -11,19 +11,19 @@ provider "cloudflare" {
 //// Cloudflare Global API Credentials
 variable "cloudflare_user_email" {
   description = "Cloudflare User Email"
-  type = string
+  type        = string
 }
 
 variable "cloudflare_global_api_token" {
   description = "Cloudflare User Global API Key"
-  type = string
-  sensitive = true
+  type        = string
+  sensitive   = true
 }
 
 //// Target Zone
 variable "cloudflare_zone_id" {
   description = "Cloudflare Zone (ID) to Target"
-  type = string
+  type        = string
 }
 
 //// Get Zone Plan
@@ -39,7 +39,7 @@ data "cloudflare_zone" "target" {
 // planIDEnterprise = "enterprise"
 
 locals {
-  zoneHasEnt = (data.cloudflare_zone.target.id == "enterprise") ? true : false
-  zoneHasBiz = (local.zoneHasEnt || data.cloudflare_zone.target.id == "business") ? true : false
-  zoneHasPro = (local.zoneHasEnt || local.zoneHasBiz || data.cloudflare_zone.target.id == "pro_plus" || data.cloudflare_zone.target.plan == "pro") ? true : false
+  zoneHasEnt = data.cloudflare_zone.target.plan == "enterprise"
+  zoneHasBiz = local.zoneHasEnt || data.cloudflare_zone.target.plan == "business"
+  zoneHasPro = local.zoneHasBiz || contains(["pro_plus", "pro"], data.cloudflare_zone.target.plan)
 }

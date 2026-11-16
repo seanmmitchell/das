@@ -1,8 +1,7 @@
-version: "3" 
+name: das-wordpress-cloudflare-tunnel
 
 services:
   mysql:
-    container_name: wp-fi-03--mysql
     image: mysql:8.0
     restart: unless-stopped
     environment:
@@ -15,7 +14,6 @@ services:
   wordpress:
     depends_on:
       - mysql
-    container_name: wp-fi-03--wordpress
     image: wordpress:latest
     restart: unless-stopped
     environment:
@@ -29,7 +27,6 @@ services:
   cloudflared:
     depends_on:
       - wordpress
-    container_name: wp-fi-03--cloudflared
     image: cloudflare/cloudflared:latest
     restart: unless-stopped
     command: tunnel run
